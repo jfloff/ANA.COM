@@ -1,0 +1,135 @@
+package pt.ist.anacom.domain;
+
+class Anacom;
+
+class State {
+	String name;
+}
+class StateON extends State {}
+class StateOFF extends State {}
+class StateBUSY extends State {}
+class StateSILENCE extends State {}
+
+class Operator {
+  String prefix;
+  String name;
+}
+
+class Phone {
+  String nr;
+  int balance;
+}
+
+class Plan {
+  int tax;
+  int taxVoice;
+  int taxVideo;
+  int taxSMS;
+}
+
+class NewGenPhone extends Phone {}
+class OldGenPhone extends Phone {}
+
+class Communication {
+  String nrSource;
+  String nrDest;
+  int cost;
+}
+
+class Voice extends Communication {
+  DateTime duration;	
+}
+
+class Video extends Communication {
+  DateTime duration;
+}
+
+class SMS extends Communication {
+  String message;
+}
+
+relation PhoneContainsState {
+	Phone playsRole phoneState {
+		multiplicity 1..1;
+	}
+	State playsRole state {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateOFF {
+	Phone playsRole phoneStateOFF {
+		multiplicity 1..1;
+	}
+	StateOFF playsRole stateOFF {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateON {
+	Phone playsRole phoneStateON {
+		multiplicity 1..1;
+	}
+	StateON playsRole stateON {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateBUSY {
+	Phone playsRole phoneStateBUSY {
+		multiplicity 1..1;
+	}
+	StateBUSY playsRole stateBUSY {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateSILENCE {
+	Phone playsRole phoneStateSILENCE {
+		multiplicity 1..1;
+	}
+	StateSILENCE playsRole stateSILENCE {
+		multiplicity 1..1;
+	}
+}
+
+relation OperatorContainsPhones {
+	Operator playsRole operator{
+		multiplicity 1..1;
+	}
+	Phone playsRole phone {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsSent {
+	Phone playsRole phoneSent;
+	Communication playsRole CommunicationSent {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsReceived {
+	Phone playsRole phoneReceived;
+	Communication playsRole CommunicationReceived {
+	  multiplicity *;
+	}
+}
+
+relation AnacomContainsOperators {
+	Anacom playsRole anacom{
+		multiplicity 1..1;
+	}
+	Operator playsRole operator {
+	  multiplicity *;
+	}
+}
+
+relation OperatorContainsPlan {
+	Operator playsRole operator {
+		multiplicity 1..1;
+	}
+	Plan playsRole plan {
+		multiplicity 1..1;
+	}
+}

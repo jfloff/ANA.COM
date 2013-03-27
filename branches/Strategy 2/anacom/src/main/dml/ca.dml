@@ -1,0 +1,50 @@
+package pt.ist.ca.domain;
+
+class CertificateAuthority {
+	String publicKey;
+	String privateKey;	
+}
+
+class Certificate {
+	String signature;
+}
+
+class CertificateINFO {
+	String serialID;
+	String operatorID;
+	String publicKey;
+	DateTime startDate;
+	DateTime endDate;
+}
+
+relation CertificateContainsCertificateINFO {
+	Certificate playsRole certificate{
+		multiplicity 1..1;
+	}
+	
+	CertificateINFO playsRole certificateINFO {
+		multiplicity 1..1;
+	}
+}
+
+relation CertificateAuthorityContainsValidCertificate {
+	
+	CertificateAuthority playsRole caValid{
+		multiplicity 1..1;
+	}
+	
+	Certificate playsRole validCertificate {
+	  multiplicity *;
+	}
+}
+
+relation CertificateAuthorityContainsRevokedCertificate {
+	
+	CertificateAuthority playsRole caRevoke{
+		multiplicity 1..1;
+	}
+	
+	Certificate playsRole revokedCertificate {
+	  multiplicity *;
+	}
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<context-param>
+		<param-name>operatorPrefix</param-name>
+		<param-value>91</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>replicaId</param-name>
+		<param-value>3</param-value>
+	</context-param>
+
+	<listener>
+		<description>Starts fenix framework upon webapp deployment.</description>
+		<listener-class>pt.ist.phonebook.applicationserver.ApplicationServerInitListener</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>phonebook</servlet-name>
+		<servlet-class>pt.ist.phonebook.applicationserver.ApplicationServerWebService</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>phonebook</servlet-name>
+		<url-pattern>/91</url-pattern>
+	</servlet-mapping>
+
+
+</web-app>

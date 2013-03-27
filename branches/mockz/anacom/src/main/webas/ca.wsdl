@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Tips: - Colocar sempre <elements> para cada <part> - minOccurs="0" (opcional) 
+	default=1 - maxOccurs="unbounded" (cria uma lista) -->
+
+<definitions name="ca" targetNamespace="http://pt.ist.ca.essd.0403"
+	xmlns:tns="http://pt.ist.ca.essd.0403" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<!-- * * ************** TYPES ************** * -->
+
+	<types>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://pt.ist.ca.essd.0403">
+
+
+			<xsd:complexType name="OperatorType">
+				<xsd:sequence>
+					<xsd:element name="operatorID" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="KeysType">
+				<xsd:sequence>
+					<xsd:element name="publicKey" type="xsd:string" />
+					<xsd:element name="privateKey" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PublicKeyType">
+				<xsd:sequence>
+					<xsd:element name="publicKey" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="OperatorCertificateInfoType">
+				<xsd:sequence>
+					<xsd:element name="operatorID" type="xsd:string" />
+					<xsd:element name="publicKey" type="xsd:string" />
+					<xsd:element name="validity" type="xsd:int" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="CertificateType">
+				<xsd:sequence>
+					<xsd:element name="certificateContents" type="xsd:string" />
+					<xsd:element name="signature" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="CertificateListType">
+				<xsd:sequence>
+					<xsd:element name="certificateList" type="tns:CertificateType"
+						minOccurs="0" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<!-- Services Elements -->
+			<xsd:element name="signCertificateInputElement" type="tns:OperatorCertificateInfoType" />
+
+			<xsd:element name="signCertificateOutputElement" type="tns:CertificateType" />
+
+			<xsd:element name="revokeCertificateInputElement" type="tns:OperatorType" />
+
+			<xsd:element name="getCAPublicKeyOutputElement" type="tns:PublicKeyType" />
+
+			<xsd:element name="getOperatorRevokedCertificateListInputElement"
+				type="tns:OperatorType" />
+
+			<xsd:element name="getOperatorRevokedCertificateListOutputElement"
+				type="tns:CertificateListType" />
+
+			<!-- Exceptions -->
+
+			<xsd:complexType name="ValidityType">
+				<xsd:sequence>
+					<xsd:element name="validity" type="xsd:int" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:element name="InvalidValidityRemoteExceptionElement"
+				type="tns:ValidityType" />
+
+			<xsd:element name="CertificateDoesNotExistRemoteExceptionElement"
+				type="tns:OperatorType" />
+
+			<xsd:element name="OperatorCertificateAlreadyExistsRemoteExceptionElement"
+				type="tns:OperatorType" />
+
+		</xsd:schema>
+	</types>
+
+
+	<!-- **************** MESSAGES *************** -->
+
+	<!-- Void Return -->
+	<message name="empty" />
+
+	<!-- Sign Certificate -->
+	<message name="signCertificateInput">
+		<part name="signCertificateInput" element="tns:signCertificateInputElement" />
+	</message>
+
+	<message name="signCertificateOutput">
+		<part name="signCertificateOutput" element="tns:signCertificateOutputElement" />
+	</message>
+
+	<!-- Revoke Certificate -->
+	<message name="revokeCertificateInput">
+		<part name="revokeCertificateInput" element="tns:revokeCertificateInputElement" />
+	</message>
+
+	<!-- Get CA Public Key -->
+	<message name="getCAPublicKeyInput">
+	</message>
+
+	<message name="getCAPublicKeyOutput">
+		<part name="getCAPublicKeyOutput" element="tns:getCAPublicKeyOutputElement" />
+	</message>
+
+	<!-- Get Operator Revoked Certificates List -->
+	<message name="getOperatorRevokedCertificateListInput">
+		<part name="getOperatorRevokedCertificateListInput" element="tns:getOperatorRevokedCertificateListInputElement" />
+	</message>
+
+	<message name="getOperatorRevokedCertificateListOutput">
+		<part name="getOperatorRevokedCertificateListOutput" element="tns:getOperatorRevokedCertificateListOutputElement" />
+	</message>
+
+	<!-- Exceptions -->
+
+	<message name="UnableToProvideServiceRemoteException" />
+
+	<message name="EmptyOperatorRemoteException" />
+
+	<message name="EmptyPublicKeyRemoteException" />
+
+	<message name="InvalidValidityRemoteException">
+		<part name="InvalidValidityRemoteException" element="tns:InvalidValidityRemoteExceptionElement" />
+	</message>
+
+	<message name="OperatorCertificateAlreadyExistsRemoteException">
+		<part name="OperatorCertificateAlreadyExistsRemoteException"
+			element="tns:OperatorCertificateAlreadyExistsRemoteExceptionElement" />
+	</message>
+
+	<message name="CertificateDoesNotExistRemoteException">
+		<part name="CertificateDoesNotExistRemoteException" element="tns:CertificateDoesNotExistRemoteExceptionElement" />
+	</message>
+
+	<!-- **************** PORTS *************** -->
+
+	<portType name="CertificateAuthorityPortType">
+
+		<operation name="signCertificate">
+			<input name="signCertificateInput" message="tns:signCertificateInput" />
+			<output name="signCertificateOutput" message="tns:signCertificateOutput" />
+			<fault name="UnableToProvideServiceRemoteException" message="tns:UnableToProvideServiceRemoteException" />
+			<fault name="EmptyOperatorRemoteException" message="tns:EmptyOperatorRemoteException" />
+			<fault name="EmptyPublicKeyRemoteException" message="tns:EmptyPublicKeyRemoteException" />
+			<fault name="InvalidValidityRemoteException" message="tns:InvalidValidityRemoteException" />
+			<fault name="OperatorCertificateAlreadyExistsRemoteException"
+				message="tns:OperatorCertificateAlreadyExistsRemoteException" />
+		</operation>
+
+		<operation name="revokeCertificate">
+			<input name="revokeCertificateInput" message="tns:revokeCertificateInput" />
+			<output name="revokeCertificateOutput" message="tns:empty" />
+			<fault name="CertificateDoesNotExistRemoteException" message="tns:CertificateDoesNotExistRemoteException" />
+		</operation>
+
+		<operation name="getCAPublicKey">
+			<input name="getCAPublicKeyInput" message="tns:getCAPublicKeyInput" />
+			<output name="getCAPublicKeyOutput" message="tns:getCAPublicKeyOutput" />
+		</operation>
+
+		<operation name="getOperatorRevokedCertificateList">
+			<input name="getOperatorRevokedCertificateListInput" message="tns:getOperatorRevokedCertificateListInput" />
+			<output name="getOperatorRevokedCertificateListOutput"
+				message="tns:getOperatorRevokedCertificateListOutput" />
+			<fault name="UnableToProvideServiceRemoteException" message="tns:UnableToProvideServiceRemoteException" />
+		</operation>
+	</portType>
+
+	<!-- **************** BINDING *************** -->
+
+	<binding name="CertificateAuthorityBinding" type="tns:CertificateAuthorityPortType">
+
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+
+		<!-- OPERATIONS -->
+
+		<operation name="signCertificate">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="UnableToProvideServiceRemoteException">
+				<soap:fault use="literal" name="UnableToProvideServiceRemoteException" />
+			</fault>
+			<fault name="EmptyOperatorRemoteException">
+				<soap:fault use="literal" name="EmptyOperatorRemoteException" />
+			</fault>
+			<fault name="EmptyPublicKeyRemoteException">
+				<soap:fault use="literal" name="EmptyPublicKeyRemoteException" />
+			</fault>
+			<fault name="InvalidValidityRemoteException">
+				<soap:fault use="literal" name="InvalidValidityRemoteException" />
+			</fault>
+			<fault name="OperatorCertificateAlreadyExistsRemoteException">
+				<soap:fault use="literal"
+					name="OperatorCertificateAlreadyExistsRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="revokeCertificate">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="CertificateDoesNotExistRemoteException">
+				<soap:fault use="literal" name="CertificateDoesNotExistRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="getCAPublicKey">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+
+		<operation name="getOperatorRevokedCertificateList">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="UnableToProvideServiceRemoteException">
+				<soap:fault use="literal" name="UnableToProvideServiceRemoteException" />
+			</fault>
+		</operation>
+
+	</binding>
+	<!-- **************** SERVICES *************** -->
+
+	<service name="CertificateAuthorityService">
+		<port name="CertificateAuthorityPort" binding="tns:CertificateAuthorityBinding">
+			<soap:address
+				location="http://localhost:8080/ca-as/CertificateAuthorityService" />
+		</port>
+	</service>
+
+</definitions>

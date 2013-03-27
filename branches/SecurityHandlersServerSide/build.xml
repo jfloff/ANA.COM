@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project name="base-server-impl" default="deploy" basedir="." >
+
+	<property file="${basedir}/build.properties" />
+	<import file="libraries.xml" />
+
+	<!-- set global properties for this build -->
+	<property name="project.name" value="base-server" />
+	<property name="dist.dir" value="dist" />
+	<property name="deploy.dir" value="${project.jboss.home}/${project.jboss.conf}/deployments" />
+	<property name="build.dir" value="build" />
+	<property name="src.dir" value="src/java" />
+	<property name="resources.dir" value="src/resources" />
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile the Java source code" unless="eclipse.running">
+		<tstamp/>
+		<javac destdir="${build.dir}" classpathref="project.classpath" debug="${javac.debug}" deprecation="${javac.deprecation}" nowarn="on">
+			<src path="${src.dir}" />
+		</javac>
+	</target>
+
+	<target name="copyclasses" depends="init" description="Copy the classes that were compiled by Eclipse" if="eclipse.running">
+		<copy todir="${build.dir}">
+			<fileset dir="${classes}">
+				<include name="**/*.class"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copyhandlers" depends="init" description="Copy xml soap handlers files">
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist" depends="clean,compile,copyclasses,copyhandlers" description="Create the application distribution archive">
+		<fail unless="project.type">project.type not set</fail>
+		<war warfile="${dist.dir}/${project.name}.${project.type}" webxml="${resources.dir}/WEB-INF/web.xml">
+			  <classes dir="${build.dir}" />
+			</war>
+		
+	</target>
+
+	<target name="deploy" depends="dist" description="Deploy to JBoss AS">
+		<fail unless="project.jboss.home">project.jboss.home not set</fail>
+		<copy todir="${deploy.dir}" file="${dist.dir}/${project.name}.${project.type}" />
+	</target>
+
+	<target name="undeploy" description="Undeploy from JBoss AS">
+		<fail unless="project.jboss.home">project.jboss.home not set</fail>
+		<fail unless="project.jboss.conf">project.jboss.conf not set</fail>
+		<delete file="${deploy.dir}/${project.name}.${project.type}" />
+	</target>
+
+</project>

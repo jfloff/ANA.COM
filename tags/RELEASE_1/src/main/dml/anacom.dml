@@ -1,0 +1,72 @@
+package pt.ist.anacom.domain;
+
+enum pt.ist.anacom.domain.Phone.State as State ;
+
+valueType java.math.BigDecimal as BigDecimal {
+    externalizeWith {
+        String toString();
+    }
+}
+
+class Anacom;
+
+class Operator {
+  Integer prefix;
+  String name;
+  BigDecimal tax;
+  BigDecimal taxVoice;
+  BigDecimal taxVideo;
+  BigDecimal taxSMS;
+}
+
+class Phone {
+  Integer nr;
+  State state;
+  BigDecimal balance;
+}
+
+class Communication {
+  Integer nrSource;
+  Integer nrDest;
+  BigDecimal cost;
+}
+
+class Voice extends Communication {
+  DateTime duration;	
+}
+
+class Video extends Communication {
+  DateTime duration;
+}
+
+class SMS extends Communication {
+  String message;
+}
+
+relation OperatorContainsPhones {
+	Operator playsRole operator;
+	Phone playsRole phone {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunications {
+	Phone playsRole phone;
+	Communication playsRole Communication {
+	  multiplicity *;
+	}
+}
+
+relation AnacomContainsOperators {
+	Anacom playsRole anacom;
+	Operator playsRole operator {
+	  multiplicity *;
+	}
+}
+
+relation AnacomContainsCommunications {
+	Anacom playsRole anacom;
+	Communication playsRole Communication {
+	  multiplicity *;
+	}
+}

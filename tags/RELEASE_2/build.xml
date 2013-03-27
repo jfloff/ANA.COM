@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Anacom" default="compile" basedir=".">
+	<description>Anacom with Services and JUnit 3 Tests Build File</description>
+
+	<property name="javac.encoding" value="UTF-8" />
+	<property name="java.file.encoding" value="UTF-8" />
+
+	<property name="src.rel-dir" value="src" />
+	<property name="build.rel-dir" value="build" />
+	<property name="lib.rel-dir" value="../lib" />
+	<property name="db.rel-dir" value="db" />
+	<property name="test-db.rel-dir" value="test-db" />
+
+	<property name="main.src.rel-dir" value="${src.rel-dir}/main" />
+	<property name="test.src.rel-dir" value="${src.rel-dir}/test" />
+
+	<property name="dml.filename" value="anacom.dml" />
+
+	<property name="java.main.src.rel-dir" value="${main.src.rel-dir}/java" />
+	<property name="java.test.src.rel-dir" value="${test.src.rel-dir}/java" />
+	<property name="dml.src.rel-dir" value="${main.src.rel-dir}/dml" />
+	<property name="generated-src.build.rel-dir" value="${build.rel-dir}/src" />
+	<property name="classes.build.rel-dir" value="${build.rel-dir}/classes" />
+
+	<property name="dml.rel-file" value="${dml.src.rel-dir}/${dml.filename}" />
+
+	<path id="project.classpath">
+		<pathelement location="${classes.build.rel-dir}" />
+		<fileset dir="${lib.rel-dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef resource="pt/ist/fenixframework/dml-ant.xml" classpathref="project.classpath" />
+
+	<target name="prepare">
+		<echo message="Preparing the project for build..." />
+		<mkdir dir="${classes.build.rel-dir}" />
+		<mkdir dir="${db.rel-dir}" />
+		<mkdir dir="${test-db.rel-dir}" />
+	</target>
+
+	<target name="generate-domain" depends="prepare">
+		<echo message="Generating base domain classes..." />
+		<echo message="Using: ${dml.rel-file}" />
+		<dml-domain-generator destDirectory="${java.main.src.rel-dir}" destDirectoryBase="${generated-src.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+		</dml-domain-generator>
+	</target>
+
+	<target name="compile-domain" depends="generate-domain">
+		<echo message="Compiling sources..." />
+		<javac destdir="${classes.build.rel-dir}" debug="true" debuglevel="lines,vars,source" optimize="true" deprecation="true" verbose="false" includeantruntime="false">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${generated-src.build.rel-dir}:${java.main.src.rel-dir}" />
+			</src>
+		</javac>
+	</target>
+
+	<target name="compile" depends="compile-domain, instrument-classes" description="Compiles the project" />
+
+	<target name="compile-tests" depends="compile" description="Compile the tests">
+		<javac destdir="${classes.build.rel-dir}" debug="true" verbose="false" debuglevel="lines,vars,source" optimize="true" deprecation="true" includeantruntime="false" encoding="${javac.encoding}">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${java.test.src.rel-dir}" />
+			</src>
+		</javac>
+	</target>
+
+	<target name="instrument-classes" depends="compile-domain">
+		<echo message="Injecting ByteCode to reinitialize FenixFramework persisted objects..." />
+		<dml-post-processor dir="${classes.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+			<classpath refid="project.classpath" />
+		</dml-post-processor>
+	</target>
+
+	<target name="populate" depends="compile" description="Populates the initial data">
+		<java classname="pt.ist.anacom.SetupDomain" fork="false">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run" depends="compile" description="Runs the program">
+		<java classname="pt.ist.anacom.presentation.PresentationServer" fork="false">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="test" depends="compile-tests" description="Run the tests">
+		<junit>
+			<classpath refid="project.classpath" />
+			<formatter type="brief" usefile="false" />
+			<test name="pt.ist.anacom.service.test.IncreasePhoneBalanceServiceTest" />
+			<test name="pt.ist.anacom.service.test.CreateOperatorServiceTest" />
+			<test name="pt.ist.anacom.service.test.SendSMSServiceTest" />
+		</junit>
+	</target>
+
+	<target name="clean" description="Cleans the compiled classes and generated sources">
+		<delete dir="${build.rel-dir}" />
+	</target>
+
+	<target name="clean-all" depends="clean">
+		<delete dir="${test-db.rel-dir}" />
+		<delete dir="${db.rel-dir}" />
+	</target>
+
+	<target name="clean-dbs" description="Cleans all the DBs">
+		<delete dir="${test-db.rel-dir}" />
+		<delete dir="${db.rel-dir}" />
+	</target>
+
+</project>

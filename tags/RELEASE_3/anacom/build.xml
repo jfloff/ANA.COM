@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="anacom" default="compile" basedir=".">
+	<description>Anacom with JBoss web services</description>
+
+	<property name="application.name" value="${ant.project.name}" />
+	<property name="javac.encoding" value="UTF-8" />
+	<property name="java.file.encoding" value="UTF-8" />
+
+	<!-- Main directories-->
+	<property name="src.rel-dir" value="src/main" />
+	<property name="test.src.rel-dir" value="src/test" />
+	<property name="build.rel-dir" value="build" />
+	<property name="lib.rel-dir" value="../lib" />
+	<property name="dist.rel-dir" value="build" />
+	<property name="eclipse.build.rel-dir" value="bin" />
+	<property name="tmp.rel-dir" value="/tmp" />
+
+	<property name="project.name" value="anacom" />
+
+	<!-- Directories with the source, e.g. java, dml, webapps -->
+	<property name="java.src.rel-dir" value="${src.rel-dir}/java" />
+	<property name="java.test.src.rel-dir" value="src/test/java" />
+	<property name="dml.src.rel-dir" value="${src.rel-dir}/dml" />
+	<property name="config.src.rel-dir" value="${src.rel-dir}/config" />
+	<property name="webps.src.rel-dir" value="${src.rel-dir}/webps" />
+	<property name="webas.src.rel-dir" value="${src.rel-dir}/webas" />
+
+	<!-- JBoss references -->
+	<property environment="env" />
+	<property name="jboss.home" value="${env.JBOSS_HOME}" />
+	<property name="jboss.temp.rel-dir" value="${tmp.rel-dir}" />
+	<property name="db.rel-dir" value="${tmp.rel-dir}/db" />
+	<property name="db-sdes.rel-dir" value="${tmp.rel-dir}/dbSDES" />
+	<property name="db-tmn.rel-dir" value="${tmp.rel-dir}/dbTMN" />
+	<property name="db-vodafone.rel-dir" value="${tmp.rel-dir}/dbVODAFONE" />
+	<property name="test-db.rel-dir" value="test-db" />
+
+	<!-- WSDL References -->
+	<property name="stubs.package" value="pt.ist.anacom.shared.stubs" />
+	<property name="project.localwsdl" value="${webas.src.rel-dir}/${application.name}.wsdl" />
+
+	<!-- DML files -->
+	<property name="dml.filename" value="${application.name}.dml" />
+	<property name="dml.rel-file" value="${dml.src.rel-dir}/${dml.filename}" />
+
+	<!-- Directories with generated source -->
+	<property name="generated-src.build.rel-dir" value="${build.rel-dir}/src" />
+
+	<!-- Directories with the .class, .e.g used to build the wars -->
+	<property name="classes.build.rel-dir" value="${build.rel-dir}/classes" />
+
+	<!-- War distribution -->
+	<property name="war-es.target.rel-dir" value="${build.rel-dir}/war-es" />
+	<property name="war-es.filename" value="${application.name}-es.war" />
+	<property name="dist.rel-dir" value="dist" />
+	<property name="dist.as.warfile" value="${dist.rel-dir}/${application.name}-as.war" />
+	<property name="dist.ps.warfile" value="${dist.rel-dir}/${application.name}-ps.war" />
+
+	<!-- Deploy directories -->
+	<property name="deploy.dir" value="${jboss.home}/standalone/deployments" />
+
+	<path id="project.classpath">
+		<pathelement location="${classes.build.rel-dir}" />
+		<fileset dir="${jboss.home}/modules">
+			<!-- SD -->
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${lib.rel-dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef resource="pt/ist/fenixframework/dml-ant.xml" classpathref="project.classpath" />
+
+	<target name="prepare">
+		<echo message="Preparing the project for build..." />
+		<mkdir dir="${classes.build.rel-dir}" />
+		<mkdir dir="${db.rel-dir}" />
+		<mkdir dir="${test-db.rel-dir}" />
+		<copy file="${dml.rel-file}" todir="${jboss.temp.rel-dir}" />
+	</target>
+
+	<target name="generate-domain" depends="prepare">
+		<echo message="Generating base domain classes..." />
+		<echo message="Using: ${dml.rel-file}" />
+		<dml-domain-generator destDirectory="${java.src.rel-dir}" destDirectoryBase="${generated-src.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+		</dml-domain-generator>
+	</target>
+
+	<target name="compile-domain" depends="generate-domain, generate-ws-stubs">
+		<echo message="Compiling sources..." />
+		<javac destdir="${classes.build.rel-dir}" debug="true" debuglevel="lines,vars,source" optimize="true" deprecation="true" verbose="false" includeantruntime="false">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${generated-src.build.rel-dir}:${java.src.rel-dir}" />
+			</src>
+			<compilerarg line="" />
+		</javac>
+	</target>
+
+	<target name="instrument-classes" depends="compile-domain">
+		<echo message="Injecting FenixFramework Voodoo Magic..." />
+		<dml-post-processor dir="${classes.build.rel-dir}">
+			<fileset file="${dml.rel-file}" />
+			<classpath refid="project.classpath" />
+		</dml-post-processor>
+	</target>
+
+	<target name="compile" depends="compile-domain, instrument-classes" description="Compiles the project" />
+
+	<target name="compile-tests" depends="compile" description="Compile the tests">
+		<javac destdir="${classes.build.rel-dir}" debug="true" debuglevel="lines,vars,source" optimize="true" deprecation="true" verbose="false" includeantruntime="false" encoding="${javac.encoding}">
+			<classpath refid="project.classpath" />
+			<src>
+				<pathelement path="${java.test.src.rel-dir}" />
+			</src>
+		</javac>
+	</target>
+
+	<!-- SD -->
+	<target name="generate-ws-stubs" depends="prepare" description="Generate Web Service Java code from local WSDL, for the server">
+		<taskdef name="wsconsume" classname="org.jboss.ws.tools.ant.WSConsumeTask">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+		</taskdef>
+
+		<echo message="Executing wsconsume to generate server-side code..." />
+		<echo message="WSDL: ${project.localwsdl}" />
+		<wsconsume fork="true" verbose="true" destdir="${classes.build.rel-dir}" sourcedestdir="${generated-src.build.rel-dir}" package="${stubs.package}" keep="true" wsdl="${project.localwsdl}" />
+	</target>
+
+	<target name="copy-web-xml" depends="" description="copy web.xml to its location">
+		<copy overwrite="true" tofile="${webas.src.rel-dir}/WEB-INF/web.xml" file="${webas.src.rel-dir}/WEB-INF/${project.name}.xml" />
+	</target>
+
+	<!-- Application Server -->
+	<target name="war-as-sd" depends="copy-web-xml" description="Create the web service distribution archive">
+		<war warfile="${dist.rel-dir}/${project.name}.war" webxml="${webas.src.rel-dir}/WEB-INF/web.xml">
+			<classes dir="${classes.build.rel-dir}" />
+			<tarfileset dir="${webas.src.rel-dir}">
+				<include name="*.wsdl" />
+			</tarfileset>
+			<tarfileset dir="${lib.rel-dir}" prefix="WEB-INF/lib">
+				<include name="**.jar" />
+			</tarfileset>
+		</war>
+	</target>
+
+	<!-- Deploy Application Server -->
+	<target name="deploy-as-sd" depends="war-as-sd" description="Deploy web service to JBoss AS">
+		<fail unless="jboss.home">project.jboss.home not set</fail>
+		<copy todir="${deploy.dir}" file="${dist.rel-dir}/${project.name}.war" />
+	</target>
+
+	<target name="deploy-sdes" depends="">
+		<antcall target="deploy-as-sd">
+			<param name="project.name" value="98" />
+		</antcall>
+	</target>
+
+	<target name="deploy-tmn" depends="">
+		<antcall target="deploy-as-sd">
+			<param name="project.name" value="96" />
+		</antcall>
+	</target>
+
+	<target name="deploy-vodafone" depends="">
+		<antcall target="deploy-as-sd">
+			<param name="project.name" value="99" />
+		</antcall>
+	</target>
+
+	<target name="deploy-all" depends="clean, compile, deploy-sdes, deploy-tmn, deploy-vodafone" description="Deploy all web services">
+	</target>
+
+	<target name="undeploy" description="Undeploy from JBoss AS">
+		<fail unless="jboss.home">project.jboss.home not set</fail>
+		<delete file="${deploy.dir}/*.war" />
+	</target>
+
+	<target name="test-es" depends="compile-tests" description="Run the tests">
+		<echo message="Testing all services..." />
+		<junit>
+			<classpath refid="project.classpath" />
+			<formatter type="brief" usefile="false" />
+			<test name="pt.ist.anacom.service.test.CreateOperatorServiceTest" />
+			<test name="pt.ist.anacom.service.test.IncreasePhoneBalanceServiceTest" />
+			<test name="pt.ist.anacom.service.test.SendSMSServiceTest" />
+
+		</junit>
+	</target>
+
+	<target name="test-sd" depends="compile-tests" description="Run the tests">
+		<echo message="Testing all services..." />
+		<junit>
+			<classpath refid="project.classpath" />
+			<formatter type="brief" usefile="false" />
+			<test name="anacom.presentation.CreateMobileTestSD" />
+		</junit>
+	</target>
+
+	<target name="clean" description="Cleans the compiled classes and generated sources">
+		<delete dir="${build.rel-dir}" />
+		<delete dir="${eclipse.build.rel-dir}" />
+		<delete dir="${dist.rel-dir}" />
+		<delete dir="${test-db.rel-dir}" />
+		<delete dir="${db.rel-dir}" />
+		<delete dir="${dml.jboss.rel-file}" />
+	</target>
+
+	<target name="clean-db" description="Cleans the compiled classes and generated sources">
+		<delete dir="${test-db.rel-dir}" />
+		<delete dir="${db.rel-dir}" />
+		<delete dir="${db-sdes.rel-dir}" />
+		<delete dir="${db-tmn.rel-dir}" />
+		<delete dir="${db-vodafone.rel-dir}" />
+	</target>
+
+	<target name="run-remote" depends="" description="Runs the program with a remote application server">
+		<java classname="pt.ist.anacom.presentation.PresentationServer" fork="false">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+			<sysproperty key="server.type" value="ES+SD" />
+		</java>
+	</target>
+
+	<target name="run-local" depends="" description="Runs the program with a local application server">
+		<java classname="pt.ist.anacom.presentation.PresentationServer" fork="false">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+			<sysproperty key="server.type" value="ES-only" />
+		</java>
+	</target>
+
+</project>

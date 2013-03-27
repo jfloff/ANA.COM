@@ -1,0 +1,26 @@
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+
+
+	<context-param>
+		<param-name>caName</param-name>
+		<param-value>policia</param-value>
+	</context-param>
+
+	<listener>
+		<description>Manage resource reservation and release upon webapp deployment.</description>
+		<listener-class>pt.ist.ca.applicationserver.CertificateAuthorityServerInitListener</listener-class>
+	</listener>
+
+
+	<servlet>
+		<servlet-name>CertificateAuthority</servlet-name>
+		<servlet-class>pt.ist.ca.applicationserver.CertificateAuthorityWebService</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>CertificateAuthority</servlet-name>
+		<url-pattern>/policia</url-pattern>
+	</servlet-mapping>
+</web-app>

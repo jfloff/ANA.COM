@@ -1,0 +1,26 @@
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+
+
+	<context-param>
+		<param-name>operatorName</param-name>
+		<param-value>TMN</param-value>
+	</context-param>
+
+	<listener>
+		<description>Manage resource reservation and release upon webapp deployment.</description>
+		<listener-class>pt.ist.anacom.applicationserver.ApplicationServerInitListener</listener-class>
+	</listener>
+
+
+	<servlet>
+		<servlet-name>Anacom</servlet-name>
+		<servlet-class>pt.ist.anacom.applicationserver.ApplicationServerWebService</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Anacom</servlet-name>
+		<url-pattern>/96</url-pattern>
+	</servlet-mapping>
+</web-app>

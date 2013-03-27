@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Tips: - Colocar sempre <elements> para cada <part> - minOccurs="0" (opcional) 
+	default=1 - maxOccurs="unbounded" (cria uma lista) -->
+
+<definitions name="anacom" targetNamespace="http://pt.ist.anacom.essd.0403"
+	xmlns:tns="http://pt.ist.anacom.essd.0403" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<!-- * * ************** TYPES ************** * -->
+
+	<types>
+		<xsd:schema elementFormDefault="qualified"
+			targetNamespace="http://pt.ist.anacom.essd.0403">
+
+			<!-- OPERATIONS DTO -->
+			<xsd:complexType name="OperatorDtoType">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+					<xsd:element name="name" type="xsd:string" />
+					<xsd:element name="tax" type="xsd:int" />
+					<xsd:element name="taxVoice" type="xsd:int" />
+					<xsd:element name="taxSMS" type="xsd:int" />
+					<xsd:element name="taxVideo" type="xsd:int" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneDtoType">
+				<xsd:sequence>
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="SMSDtoType">
+				<xsd:sequence>
+					<xsd:element name="text" type="xsd:string" />
+					<xsd:element name="nrSource" type="xsd:string" />
+					<xsd:element name="nrDest" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="BalanceDtoType">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="balance" type="xsd:int" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneAndBalanceListDtoType">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+					<xsd:element name="phoneList" type="tns:BalanceDtoType"
+						minOccurs="0" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneReceivedSMSListDto">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+					<xsd:element name="phoneNumber" type="xsd:string" />
+					<xsd:element name="smsList" type="tns:SMSDtoType"
+						minOccurs="0" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<!-- OPERATIONS ELEMENTS -->
+			<xsd:element name="registerOperatorInputElement" type="tns:OperatorDtoType" />
+
+			<xsd:element name="registerPhoneInputElement" type="tns:PhoneDtoType" />
+
+			<xsd:element name="cancelRegisterPhoneInputElement" type="tns:PhoneDtoType" />
+
+			<xsd:element name="getPhoneBalanceInputElement" type="tns:BalanceDtoType" />
+
+			<xsd:element name="getPhoneBalanceOutputElement" type="tns:BalanceDtoType" />
+
+			<xsd:element name="increasePhoneBalanceInputElement"
+				type="tns:BalanceDtoType" />
+
+			<xsd:element name="getPhonesBalanceListInputElement"
+				type="tns:PhoneAndBalanceListDtoType" />
+
+			<xsd:element name="getPhonesBalanceListOutputElement"
+				type="tns:PhoneAndBalanceListDtoType" />
+
+			<xsd:element name="sendSMSInputElement" type="tns:SMSDtoType" />
+
+			<xsd:element name="receiveSMSInputElement" type="tns:SMSDtoType" />
+
+			<!-- EXCEPTIONS TYPES -->
+			<xsd:complexType name="PhonePrefixDoesNotMatchRemoteExceptionType">
+				<xsd:sequence>
+					<xsd:element name="operatorName" type="xsd:string" />
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+					<xsd:element name="phoneNumber" type="xsd:string" />
+					<xsd:element name="phonePrefix" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="OperatorExceptionType">
+				<xsd:sequence>
+					<xsd:element name="operatorName" type="xsd:string" />
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<xsd:complexType name="PhoneNumberElementType">
+				<xsd:sequence>
+					<xsd:element name="phoneNumber" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="OperatorPrefixElementType">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PrefixElementType">
+				<xsd:sequence>
+					<xsd:element name="operatorPrefix" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<!-- EXCEPTIONS ELEMENTS -->
+			<xsd:element name="OperatorWithWrongPrefixRemoteExceptionElement"
+				type="tns:OperatorExceptionType" />
+
+			<xsd:element name="OperatorAlreadyExistsRemoteExceptionElement"
+				type="tns:OperatorExceptionType" />
+
+			<xsd:element name="OperatorNullNameRemoteExceptionElement"
+				type="tns:PrefixElementType" />
+
+			<xsd:element name="OperatorDoesNotExistRemoteExceptionElement"
+				type="tns:OperatorPrefixElementType" />
+
+			<xsd:element name="PhonePrefixDoesNotMatchRemoteExceptionElement"
+				type="tns:PhonePrefixDoesNotMatchRemoteExceptionType" />
+
+			<xsd:element name="PhoneAlreadyExistsRemoteExceptionElement"
+				type="tns:PhoneNumberElementType" />
+
+			<xsd:element name="PhoneNumberIncorrectRemoteExceptionElement"
+				type="tns:PhoneNumberElementType" />
+
+			<xsd:element name="NoSuchPhoneRemoteExceptionElement"
+				type="tns:PhoneNumberElementType" />
+
+			<xsd:element name="PrefixDoesNotExistRemoteExceptionElement"
+				type="tns:PrefixElementType" />
+
+			<xsd:element name="InsuficientBalanceRemoteExceptionElement"
+				type="tns:BalanceDtoType" />
+
+			<xsd:element name="InvalidBalanceOperationRemoteExceptionElement"
+				type="tns:BalanceDtoType" />
+
+			<xsd:element name="PhoneIsOFFRemoteExceptionElement"
+				type="tns:PhoneNumberElementType" />
+
+			<xsd:element name="PhoneIsBUSYRemoteExceptionElement"
+				type="tns:PhoneNumberElementType" />
+
+		</xsd:schema>
+	</types>
+
+	<!-- * * ************** MESSAGES ************** * -->
+
+	<!-- Void Return -->
+	<message name="empty" />
+
+	<!-- Register Operator -->
+	<message name="registerOperatorInput">
+		<part name="registerOperatorInput" element="tns:registerOperatorInputElement" />
+	</message>
+
+	<!-- Register Phone -->
+	<message name="registerPhoneInput">
+		<part name="registerPhoneInput" element="tns:registerPhoneInputElement" />
+	</message>
+
+	<!-- Cancel Register Phone -->
+	<message name="cancelRegisterPhoneInput">
+		<part name="cancelRegisterPhoneInput" element="tns:cancelRegisterPhoneInputElement" />
+	</message>
+
+	<!-- Get Phone Balance -->
+	<message name="getPhoneBalanceInput">
+		<part name="getPhoneBalanceInput" element="tns:getPhoneBalanceInputElement" />
+	</message>
+	<message name="getPhoneBalanceOutput">
+		<part name="getPhoneBalanceOutput" element="tns:getPhoneBalanceOutputElement" />
+	</message>
+
+	<!-- Increase Phone Balance -->
+	<message name="increasePhoneBalanceInput">
+		<part name="increasePhoneBalanceInput" element="tns:increasePhoneBalanceInputElement" />
+	</message>
+
+	<!-- Get Phones Balance List -->
+	<message name="getPhonesBalanceListInput">
+		<part name="getPhonesBalanceListInput" element="tns:getPhonesBalanceListInputElement" />
+	</message>
+	<message name="getPhonesBalanceListOutput">
+		<part name="getPhonesBalanceListOutput" element="tns:getPhonesBalanceListOutputElement" />
+	</message>
+
+	<!-- Send SMS -->
+	<message name="sendSMSInput">
+		<part name="sendSMSInput" element="tns:sendSMSInputElement" />
+	</message>
+
+	<!-- Receive SMS -->
+	<message name="receiveSMSInput">
+		<part name="receiveSMSInput" element="tns:receiveSMSInputElement" />
+	</message>
+
+	<!-- RemoteExceptions -->
+	<message name="OperatorDoesNotExistRemoteException">
+		<part name="OperatorDoesNotExistRemoteException" element="tns:OperatorDoesNotExistRemoteExceptionElement" />
+	</message>
+	<message name="PhonePrefixDoesNotMatchRemoteException">
+		<part name="PhonePrefixDoesNotMatchRemoteException" element="tns:PhonePrefixDoesNotMatchRemoteExceptionElement" />
+	</message>
+	<message name="PhoneAlreadyExistsRemoteException">
+		<part name="PhoneAlreadyExistsRemoteException" element="tns:PhoneAlreadyExistsRemoteExceptionElement" />
+	</message>
+	<message name="PhoneNumberIncorrectRemoteException">
+		<part name="PhoneNumberIncorrectRemoteException" element="tns:PhoneNumberIncorrectRemoteExceptionElement" />
+	</message>
+	<message name="OperatorAlreadyExistsRemoteException">
+		<part name="OperatorAlreadyExistsRemoteException" element="tns:OperatorAlreadyExistsRemoteExceptionElement" />
+	</message>
+	<message name="OperatorWithWrongPrefixRemoteException">
+		<part name="OperatorWithWrongPrefixRemoteException" element="tns:OperatorWithWrongPrefixRemoteExceptionElement" />
+	</message>
+	<message name="OperatorNullNameRemoteException">
+		<part name="OperatorNullNameRemoteException" element="tns:OperatorNullNameRemoteExceptionElement" />
+	</message>
+	<message name="NoSuchPhoneRemoteException">
+		<part name="NoSuchPhoneRemoteException" element="tns:NoSuchPhoneRemoteExceptionElement" />
+	</message>
+	<message name="PrefixDoesNotExistRemoteException">
+		<part name="PrefixDoesNotExistRemoteException" element="tns:PrefixDoesNotExistRemoteExceptionElement" />
+	</message>
+	<message name="InsuficientBalanceRemoteException">
+		<part name="InsuficientBalanceRemoteException" element="tns:InsuficientBalanceRemoteExceptionElement" />
+	</message>
+	<message name="InvalidBalanceOperationRemoteException">
+		<part name="InvalidBalanceOperationRemoteException" element="tns:InvalidBalanceOperationRemoteExceptionElement" />
+	</message>
+	<message name="PhoneIsOFFRemoteException">
+		<part name="PhoneIsOFFRemoteException" element="tns:PhoneIsOFFRemoteExceptionElement" />
+	</message>
+	<message name="PhoneIsBUSYRemoteException">
+		<part name="PhoneIsBUSYRemoteException" element="tns:PhoneIsBUSYRemoteExceptionElement" />
+	</message>
+
+	<!-- * * ************** PORTS ************** * -->
+
+	<portType name="AnacomPortType">
+
+		<operation name="registerOperator">
+			<input name="registerOperatorInput" message="tns:registerOperatorInput" />
+			<output name="registerOperatorOutput" message="tns:empty" />
+			<fault name="OperatorAlreadyExistsRemoteException" message="tns:OperatorAlreadyExistsRemoteException" />
+			<fault name="OperatorWithWrongPrefixRemoteException" message="tns:OperatorWithWrongPrefixRemoteException" />
+			<fault name="OperatorNullNameRemoteException" message="tns:OperatorNullNameRemoteException" />
+		</operation>
+
+		<operation name="registerPhone">
+			<input name="registerPhoneInput" message="tns:registerPhoneInput" />
+			<output name="registerPhoneOutput" message="tns:empty" />
+			<fault name="OperatorDoesNotExistRemoteException" message="tns:OperatorDoesNotExistRemoteException" />
+			<fault name="PhonePrefixDoesNotMatchRemoteException" message="tns:PhonePrefixDoesNotMatchRemoteException" />
+			<fault name="PhoneAlreadyExistsRemoteException" message="tns:PhoneAlreadyExistsRemoteException" />
+			<fault name="PhoneNumberIncorrectRemoteException" message="tns:PhoneNumberIncorrectRemoteException" />
+		</operation>
+
+		<operation name="cancelRegisterPhone">
+			<input name="cancelRegisterPhoneInput" message="tns:cancelRegisterPhoneInput" />
+			<output name="cancelRegisterPhoneOutput" message="tns:empty" />
+			<fault name="PrefixDoesNotExistRemoteException" message="tns:PrefixDoesNotExistRemoteException" />
+			<fault name="NoSuchPhoneRemoteException" message="tns:NoSuchPhoneRemoteException" />
+		</operation>
+
+		<operation name="getPhoneBalance">
+			<input name="getPhoneBalanceInput" message="tns:getPhoneBalanceInput" />
+			<output name="getPhoneBalanceOutput" message="tns:getPhoneBalanceOutput" />
+			<fault name="NoSuchPhoneRemoteException" message="tns:NoSuchPhoneRemoteException" />
+			<fault name="PrefixDoesNotExistRemoteException" message="tns:PrefixDoesNotExistRemoteException" />
+		</operation>
+
+		<operation name="increasePhoneBalance">
+			<input name="increasePhoneBalanceInput" message="tns:increasePhoneBalanceInput" />
+			<output name="increasePhoneBalanceOutput" message="tns:empty" />
+			<fault name="NoSuchPhoneRemoteException" message="tns:NoSuchPhoneRemoteException" />
+			<fault name="PrefixDoesNotExistRemoteException" message="tns:PrefixDoesNotExistRemoteException" />
+			<fault name="InvalidBalanceOperationRemoteException" message="tns:InvalidBalanceOperationRemoteException" />
+		</operation>
+
+		<operation name="getPhonesBalanceList">
+			<input name="getPhonesBalanceListInput" message="tns:getPhonesBalanceListInput" />
+			<output name="getPhonesBalanceListOutput" message="tns:getPhonesBalanceListOutput" />
+			<fault name="OperatorDoesNotExistRemoteException" message="tns:OperatorDoesNotExistRemoteException" />
+		</operation>
+
+		<operation name="sendSMS">
+			<input name="sendSMSInput" message="tns:sendSMSInput" />
+			<output name="sendSMSOutput" message="tns:empty" />
+			<fault name="NoSuchPhoneRemoteException" message="tns:NoSuchPhoneRemoteException" />
+			<fault name="PrefixDoesNotExistRemoteException" message="tns:PrefixDoesNotExistRemoteException" />
+			<fault name="InsuficientBalanceRemoteException" message="tns:InsuficientBalanceRemoteException" />
+			<fault name="InvalidBalanceOperationRemoteException" message="tns:InvalidBalanceOperationRemoteException" />
+			<fault name="PhoneIsOFFRemoteException" message="tns:PhoneIsOFFRemoteException" />
+			<fault name="PhoneIsBUSYRemoteException" message="tns:PhoneIsBUSYRemoteException" />
+		</operation>
+
+		<operation name="receiveSMS">
+			<input name="receiveSMSInput" message="tns:receiveSMSInput" />
+			<output name="receiveSMSOutput" message="tns:empty" />
+			<fault name="NoSuchPhoneRemoteException" message="tns:NoSuchPhoneRemoteException" />
+			<fault name="PrefixDoesNotExistRemoteException" message="tns:PrefixDoesNotExistRemoteException" />
+			<fault name="PhoneIsOFFRemoteException" message="tns:PhoneIsOFFRemoteException" />
+		</operation>
+
+	</portType>
+
+	<!-- * * ************** BINDING ************** * -->
+
+	<binding name="AnacomBinding" type="tns:AnacomPortType">
+
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+
+		<!-- OPERATIONS -->
+		<operation name="registerOperator">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="OperatorAlreadyExistsRemoteException">
+				<soap:fault use="literal" name="OperatorAlreadyExistsRemoteException" />
+			</fault>
+			<fault name="OperatorWithWrongPrefixRemoteException">
+				<soap:fault use="literal" name="OperatorWithWrongPrefixRemoteException" />
+			</fault>
+			<fault name="OperatorNullNameRemoteException">
+				<soap:fault use="literal" name="OperatorNullNameRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="registerPhone">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="OperatorDoesNotExistRemoteException">
+				<soap:fault use="literal" name="OperatorDoesNotExistRemoteException" />
+			</fault>
+			<fault name="PhonePrefixDoesNotMatchRemoteException">
+				<soap:fault use="literal" name="PhonePrefixDoesNotMatchRemoteException" />
+			</fault>
+			<fault name="PhoneAlreadyExistsRemoteException">
+				<soap:fault use="literal" name="PhoneAlreadyExistsRemoteException" />
+			</fault>
+			<fault name="PhoneNumberIncorrectRemoteException">
+				<soap:fault use="literal" name="PhoneNumberIncorrectRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="cancelRegisterPhone">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="NoSuchPhoneRemoteException">
+				<soap:fault use="literal" name="NoSuchPhoneRemoteException" />
+			</fault>
+			<fault name="PrefixDoesNotExistRemoteException">
+				<soap:fault use="literal" name="PrefixDoesNotExistRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="getPhoneBalance">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="NoSuchPhoneRemoteException">
+				<soap:fault use="literal" name="NoSuchPhoneRemoteException" />
+			</fault>
+			<fault name="PrefixDoesNotExistRemoteException">
+				<soap:fault use="literal" name="PrefixDoesNotExistRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="increasePhoneBalance">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="NoSuchPhoneRemoteException">
+				<soap:fault use="literal" name="NoSuchPhoneRemoteException" />
+			</fault>
+			<fault name="PrefixDoesNotExistRemoteException">
+				<soap:fault use="literal" name="PrefixDoesNotExistRemoteException" />
+			</fault>
+			<fault name="InvalidBalanceOperationRemoteException">
+				<soap:fault use="literal" name="InvalidBalanceOperationRemoteException" />
+			</fault>
+
+		</operation>
+
+		<operation name="getPhonesBalanceList">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorDoesNotExistRemoteException">
+				<soap:fault use="literal" name="OperatorDoesNotExistRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="sendSMS">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="NoSuchPhoneRemoteException">
+				<soap:fault use="literal" name="NoSuchPhoneRemoteException" />
+			</fault>
+			<fault name="PrefixDoesNotExistRemoteException">
+				<soap:fault use="literal" name="PrefixDoesNotExistRemoteException" />
+			</fault>
+			<fault name="InsuficientBalanceRemoteException">
+				<soap:fault use="literal" name="InsuficientBalanceRemoteException" />
+			</fault>
+			<fault name="InvalidBalanceOperationRemoteException">
+				<soap:fault use="literal" name="InvalidBalanceOperationRemoteException" />
+			</fault>
+			<fault name="PhoneIsOFFRemoteException">
+				<soap:fault use="literal" name="PhoneIsOFFRemoteException" />
+			</fault>
+			<fault name="PhoneIsBUSYRemoteException">
+				<soap:fault use="literal" name="PhoneIsBUSYRemoteException" />
+			</fault>
+		</operation>
+
+		<operation name="receiveSMS">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<fault name="NoSuchPhoneRemoteException">
+				<soap:fault use="literal" name="NoSuchPhoneRemoteException" />
+			</fault>
+			<fault name="PrefixDoesNotExistRemoteException">
+				<soap:fault use="literal" name="PrefixDoesNotExistRemoteException" />
+			</fault>
+			<fault name="PhoneIsOFFRemoteException">
+				<soap:fault use="literal" name="PhoneIsOFFRemoteException" />
+			</fault>
+		</operation>
+
+	</binding>
+
+	<!-- * * ************** SERVICES ************** * -->
+
+	<service name="AnacomService">
+		<port name="AnacomPort" binding="tns:AnacomBinding">
+			<soap:address location="http://localhost:8080/anacom-as/AnacomService" />
+		</port>
+	</service>
+
+</definitions>

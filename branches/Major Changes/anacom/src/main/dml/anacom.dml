@@ -1,0 +1,136 @@
+package pt.ist.anacom.domain;
+
+class Anacom;
+
+class State {}
+class StateON extends State {}
+class StateOFF extends State {}
+class StateBUSY extends State {}
+class StateSILENCE extends State {}
+
+class Operator {
+  String prefix;
+  String name;
+}
+
+class Phone {
+  String phoneNumber;
+  int balance;
+}
+
+class Plan {
+  int tax;
+  int costVoice;
+  int costVideo;
+  int costSMS;
+  int taxBonus;
+}
+
+class NewGenPhone extends Phone {}
+class OldGenPhone extends Phone {}
+
+class Communication { }
+
+class CommunicationIn extends Communication{
+  String sourcePhoneNumber;
+}
+
+class CommunicationOut extends Communication{
+  String destinationPhoneNumber;
+  int cost;
+}
+
+class VoiceIn extends CommunicationIn { int duration; }
+class VoiceOut extends CommunicationOut { int duration; }
+
+class VideoIn extends CommunicationIn {	int duration; }
+class VideoOut extends CommunicationOut { int duration; }
+
+class SMSIn extends CommunicationIn { String message; }
+class SMSOut extends CommunicationOut { String message; }
+
+relation PhoneContainsState {
+	Phone playsRole phoneState {
+		multiplicity 1..1;
+	}
+	State playsRole state {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateOFF {
+	Phone playsRole phoneStateOFF {
+		multiplicity 1..1;
+	}
+	StateOFF playsRole stateOFF {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateON {
+	Phone playsRole phoneStateON {
+		multiplicity 1..1;
+	}
+	StateON playsRole stateON {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateBUSY {
+	Phone playsRole phoneStateBUSY {
+		multiplicity 1..1;
+	}
+	StateBUSY playsRole stateBUSY {
+		multiplicity 1..1;
+	}
+}
+
+relation PhoneContainsStateSILENCE {
+	Phone playsRole phoneStateSILENCE {
+		multiplicity 1..1;
+	}
+	StateSILENCE playsRole stateSILENCE {
+		multiplicity 1..1;
+	}
+}
+
+relation OperatorContainsPhones {
+	Operator playsRole operator{
+		multiplicity 1..1;
+	}
+	Phone playsRole phone {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsSent {
+	Phone playsRole phoneSent;
+	CommunicationOut playsRole CommunicationSent {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsReceived {
+	Phone playsRole phoneReceived;
+	CommunicationIn playsRole CommunicationReceived {
+	  multiplicity *;
+	}
+}
+
+relation AnacomContainsOperators {
+	Anacom playsRole anacom{
+		multiplicity 1..1;
+	}
+	Operator playsRole operator {
+	  multiplicity *;
+	}
+}
+
+relation OperatorContainsPlan {
+	Operator playsRole operator {
+		multiplicity 1..1;
+	}
+	Plan playsRole plan {
+		multiplicity 1..1;
+	}
+}

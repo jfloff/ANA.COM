@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions name="phonebookApplicationServer"
+	targetNamespace="http://phonebook" xmlns:tns="http://phonebook"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://phonebook">
+
+			<xsd:complexType name="contactDetailedReqType">
+				<xsd:sequence>
+					<xsd:element name="name" type="xsd:string" />
+					<xsd:element name="phoneNumber" type="xsd:integer" />
+					<xsd:element name="version" type="xsd:integer" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="contactDetailedReq" type="tns:contactDetailedReqType" />
+
+			<xsd:complexType name="contactSimpleReqType">
+				<xsd:sequence>
+					<xsd:element name="name" type="xsd:string" />
+					<xsd:element name="version" type="xsd:integer" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="contactSimpleReq" type="tns:contactSimpleReqType" />
+
+			<xsd:complexType name="NameAlreadyExistsException">
+				<xsd:sequence>
+					<xsd:element name="duplicateName" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="NameAlreadyExistsException" type="tns:NameAlreadyExistsException" />
+
+			<xsd:complexType name="ContactDoesNotExistException">
+				<xsd:sequence>
+					<xsd:element name="name" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="ContactDoesNotExistException" type="tns:ContactDoesNotExistException" />			
+			
+			<xsd:element name="GetContactRequestElement" type="tns:contactSimpleReqType" />
+			
+			<xsd:element name="GetReplicaVersionElement" type="xsd:integer" />
+			
+		</xsd:schema>
+
+	</types>
+
+
+	<!-- #5 message definitions In document-literal style, each message has 
+		a single part that refers to a XML element defined in the XML Schema Definition. -->
+		
+	<!-- Input -->
+		
+	<message name="CreateContactRequest">
+		<part name="CreateContactRequest" element="tns:contactDetailedReq" />
+	</message>
+	<message name="RemoveContactRequest">
+		<part name="RemoveContactRequest" element="tns:contactSimpleReq" />
+	</message>
+	<message name="GetContactRequest">
+		<part name="GetContactRequest" element="tns:GetContactRequestElement" />
+	</message>
+	<message name="GetReplicaVersionRequest" />
+	
+	<!-- Output -->
+
+	<message name="CreateContactResponse">
+		<part name="CreateContactRequest" element="tns:GetReplicaVersionElement" />
+	</message>
+	<message name="GetContactResponse">
+		<part name="GetContactResponse" element="tns:contactDetailedReq"/>
+	</message>
+	<message name="GetReplicaVersionResponse">
+		<part name="GetReplicaVersionResponse" element="tns:GetReplicaVersionElement" />
+	</message>
+	<message name="RemoveContactResponse" />
+	
+	<!-- Exceptions -->	
+
+	<message name="NameAlreadyExistsException">
+		<part name="reason" element="tns:NameAlreadyExistsException" />
+	</message>
+
+	<message name="ContactDoesNotExistException">
+		<part name="reason" element="tns:ContactDoesNotExistException" />
+	</message>
+	
+	
+	<!-- #4 port type definitions A port type is a set of operations. It is 
+		similar in concept to a Java interface. Each operation has an input message, 
+		an output message and, optionally, fault messages. -->
+	<portType name="PhoneBookApplicationServerPortType">
+		<operation name="CreateContact">
+			<input message="tns:CreateContactRequest" name="CreateContactRequest" />
+			<output message="tns:CreateContactResponse" name="CreateContactResponse" />
+			<fault message="tns:NameAlreadyExistsException" name="NameAlreadyExistsException" />
+		</operation>
+		<operation name="RemoveContact">
+			<input message="tns:RemoveContactRequest" name="RemoveContactRequest" />
+			<output message="tns:RemoveContactResponse" name="RemoveContactResponse" />
+			<fault message="tns:ContactDoesNotExistException" name="ContactDoesNotExistException" />
+		</operation>
+		<operation name="GetContact">
+			<input message="tns:GetContactRequest" name="GetContactRequest" />
+			<output message="tns:GetContactResponse" name="GetContactResponse" />
+			<fault message="tns:ContactDoesNotExistException" name="ContactDoesNotExistException" />
+		</operation>
+		<operation name="GetReplicaVersion">
+			<input message="tns:GetReplicaVersionRequest" name="GetReplicaVersionRequest" />
+			<output message="tns:GetReplicaVersionResponse" name="GetReplicaVersionResponse" />
+		</operation>
+	</portType>
+
+	<binding name="PhoneBookApplicationServerBinding" type="tns:PhoneBookApplicationServerPortType">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+		<operation name="CreateContact">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="NameAlreadyExistsException">
+				<soap:fault use="literal" name="NameAlreadyExistsException" />
+			</fault>
+		</operation>
+		<operation name="RemoveContact">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="ContactDoesNotExistException">
+				<soap:fault use="literal" name="ContactDoesNotExistException" />
+			</fault>
+		</operation>
+		<operation name="GetContact">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="ContactDoesNotExistException">
+				<soap:fault use="literal" name="ContactDoesNotExistException" />
+			</fault>
+		</operation>
+		<operation name="GetReplicaVersion">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+	</binding>
+
+
+	<service name="phonebook">
+		<port name="PhoneBookApplicationServicePort" binding="tns:PhoneBookApplicationServerBinding">
+			<soap:address
+				location="http://localhost:8080/phonebook-as/phonebook" />
+		</port>
+	</service>
+
+
+</definitions>

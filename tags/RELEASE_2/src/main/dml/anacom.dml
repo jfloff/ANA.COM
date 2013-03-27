@@ -1,0 +1,85 @@
+package pt.ist.anacom.domain;
+
+enum pt.ist.anacom.domain.Phone.State as State ;
+
+class Anacom;
+
+class Operator {
+  String prefix;
+  String name;
+}
+
+class Phone {
+  String nr;
+  State state;
+  int balance;
+}
+
+class Plan {
+  int tax;
+  int taxVoice;
+  int taxVideo;
+  int taxSMS;
+}
+
+class NewGenPhone extends Phone {}
+class OldGenPhone extends Phone {}
+
+class Communication {
+  String nrSource;
+  String nrDest;
+  int cost;
+}
+
+class Voice extends Communication {
+  DateTime duration;	
+}
+
+class Video extends Communication {
+  DateTime duration;
+}
+
+class SMS extends Communication {
+  String message;
+}
+
+relation OperatorContainsPhones {
+	Operator playsRole operator{
+		multiplicity 1..1;
+	}
+	Phone playsRole phone {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsSent {
+	Phone playsRole phoneSent;
+	Communication playsRole CommunicationSent {
+	  multiplicity *;
+	}
+}
+
+relation PhoneContainsCommunicationsReceived {
+	Phone playsRole phoneReceived;
+	Communication playsRole CommunicationReceived {
+	  multiplicity *;
+	}
+}
+
+relation AnacomContainsOperators {
+	Anacom playsRole anacom{
+		multiplicity 1..1;
+	}
+	Operator playsRole operator {
+	  multiplicity *;
+	}
+}
+
+relation OperatorContainsPlan {
+	Operator playsRole operator {
+		multiplicity 1..1;
+	}
+	Plan playsRole plan {
+		multiplicity 1..1;
+	}
+}

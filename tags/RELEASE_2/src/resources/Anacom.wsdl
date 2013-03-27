@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Tips:
+- Colocar sempre <elements> para cada <part>
+- minOccurs="0" (opcional - default é 1)
+- maxOccurs="unbounded" (cria uma lista) 
+
+-->
+
+<definitions name="Anacom"
+             targetNamespace="http://pt.ist.anacom.essd.0403"
+             xmlns:tns="http://pt.ist.anacom.essd.0403"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+    <types>
+        <xsd:schema elementFormDefault="qualified" targetNamespace="http://pt.ist.anacom.essd.0403">
+        	
+        	<!-- complex types -->
+           	<xsd:complexType name="OperatorDto">
+		     	<xsd:sequence>
+					<xsd:element name="prefix" type="xsd:string" />
+	   				<xsd:element name="name" type="xsd:string"/>
+	   				<xsd:element name="tax" type="xsd:double"/>
+	   				<xsd:element name="taxVoice" type="xsd:double"/>
+	   				<xsd:element name="taxSMS" type="xsd:double"/>
+	   				<xsd:element name="taxVideo" type="xsd:double"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="PhoneDto">
+		     	<xsd:sequence>
+	   				<xsd:element name="number" type="xsd:string"/>
+	   				<xsd:element name="operator" type="xsd:string"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="SMSDto">
+		     	<xsd:sequence>
+	   				<xsd:element name="text" type="xsd:string"/>
+	   				<xsd:element name="senderNumber" type="xsd:string"/>
+	   				<xsd:element name="receiverNumber" type="xsd:string"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="BalanceDto">
+		     	<xsd:sequence>
+	   				<xsd:element name="number" type="xsd:string"/>
+	   				<xsd:element name="value" type="xsd:int"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="SimplePhone">
+		     	<xsd:sequence>
+	   				<xsd:element name="number" type="xsd:string"/>
+	   				<xsd:element name="balance" type="xsd:int"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="PhoneAndBalanceListDto">
+		     	<xsd:sequence>
+	   				<xsd:element name="prefix" type="xsd:string"/>
+	   				<xsd:element name="phoneList" type="tns:SimplePhone" minOccurs="0" maxOccurs="unbounded"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="PhonePrefixDoesNotMatchExceptionType">
+		     	<xsd:sequence>
+					<xsd:element name="operator" type="tns:OperatorDto"/>
+	   				<xsd:element name="phone" type="tns:PhoneDto"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<xsd:complexType name="OperatorWithWrongPrefixExceptionType">
+		     	<xsd:sequence>
+					<xsd:element name="operatorName" type="xsd:string"/>
+	   				<xsd:element name="prefix" type="xsd:string"/>
+		     	</xsd:sequence>
+       		</xsd:complexType>
+       		
+       		<!-- elements -->
+        	<xsd:element name="registerOperatorInputElement" type="tns:OperatorDto" />       	
+			<xsd:element name="registerPhoneInputElement" type="tns:PhoneDto" />
+			<xsd:element name="cancelRegisterPhoneInputElement" type="tns:PhoneDto" />
+			
+			<!-- exceptions -->
+			<xsd:element name="OperatorDoesNotExistExceptionElement" type="tns:OperatorDto" />
+			<xsd:element name="OperatorWithWrongPrefixExceptionElement" type="tns:OperatorWithWrongPrefixExceptionType"
+			<xsd:element name="OperatorAlreadyExistsExceptionElement" type="xsd:string" />
+			<xsd:element name="PhonePrefixDoesNotMatchExceptionElement" type="tns:PhonePrefixDoesNotMatchExceptionType" />
+			<xsd:element name="PhoneAlreadyExistsExceptionElement" type="tns:PhoneDto" />
+			<xsd:element name="PhoneNumberIncorrectExceptionElement" type="xsd:string" />
+			
+        </xsd:schema>
+    </types>
+
+	<!-- for void returns -->
+	<message name="empty" />
+
+	<!-- registerOperator -->
+    <message name="registerOperatorInput">
+        <part name="registerOperatorInput" element="tns:registerOperatorInputElement" />
+    </message>
+    <message name="OperatorAlreadyExistsException">
+        <part name="OperatorAlreadyExistsException" element="tns:OperatorAlreadyExistsExceptionElement" />
+    </message>
+    <message name="OperatorWithWrongPrefixException">
+        <part name="OperatorWithWrongPrefixException" element="tns:OperatorWithWrongPrefixExceptionElement" />
+    </message>
+    
+    <!-- registerPhone -->
+    <message name="registerPhoneInput">
+        <part name="registerPhoneInput" element="tns:registerPhoneInputElement" />
+    </message>
+    <message name="OperatorDoesNotExistException">
+        <part name="OperatorDoesNotExistException" element="tns:OperatorDoesNotExistExceptionElement" />
+    </message>
+    <message name="PhonePrefixDoesNotMatchException">
+        <part name="PhonePrefixDoesNotMatchException" element="tns:PhonePrefixDoesNotMatchExceptionElement" />
+    </message>
+    <message name="PhoneAlreadyExistsException">
+        <part name="PhoneAlreadyExistsException" element="tns:PhoneAlreadyExistsExceptionElement" />
+    </message>
+    <message name="PhoneNumberIncorrectException">
+    	<part name="PhoneNumberIncorrectException" element="tns:PhoneNumberIncorrectExceptionElement" />
+    </message>
+    
+    <!-- cancelRegisterPhone -->
+    <message name="cancelRegisterPhoneInput">
+        <part name="cancelRegisterPhoneInput" element="tns:cancelRegisterPhoneInputElement" />
+    </message>
+    
+    <!-- service headers -->
+    <portType name="AnacomPortType">
+        <operation name="registerOperator">
+            <input 	name="registerOperatorInput" message="tns:registerOperatorInput" />
+            <output name="registerOperatorOutput" message="tns:empty" />
+            <fault 	name="OperatorAlreadyExistsException" message="tns:OperatorAlreadyExistsException" />
+            <fault 	name="OperatorWithWrongPrefixException" message="tns:OperatorWithWrongPrefixException" />
+        </operation>
+        <operation name="registerPhone">
+            <input 	name="registerPhoneInput" message="tns:registerPhoneInput" />
+            <output name="registerPhoneOutput" message="tns:empty" />
+            <fault 	name="OperatorDoesNotExistException" message="tns:OperatorDoesNotExistException" />
+            <fault 	name="PhonePrefixDoesNotMatchException" message="tns:PhonePrefixDoesNotMatchException" />
+            <fault	name="PhoneAlreadyExistsException" message="tns:PhoneAlreadyExistsException" />
+            <fault	name="PhoneNumberIncorrectException" message="tns:PhoneNumberIncorrectException" />
+      	</operation>
+        <operation name="cancelRegisterPhone">
+            <input 	name="cancelRegisterPhoneInput" message="tns:cancelRegisterPhoneInput" />
+            <output name="cancelRegisterPhoneOutput" message="tns:empty" />
+            <fault 	name="OperatorDoesNotExistException" message="tns:OperatorDoesNotExistException" /> <!-- MAL -->
+        </operation>
+    </portType>
+
+	<!-- SOAP biding -->
+    <binding name="AnacomBinding" type="tns:AnacomPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <operation name="registerOperator">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <fault name="OperatorAlreadyExistsException">
+            	<soap:fault use="literal" name="OperatorAlreadyExistsException"/>
+            </fault>
+            <fault name="OperatorWithWrongPrefixException">
+            	<soap:fault use="literal" name="OperatorWithWrongPrefixException"/>
+            </fault>             
+        </operation>
+        <operation name="registerPhone">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <fault name="OperatorDoesNotExistException">
+            	<soap:fault use="literal" name="OperatorDoesNotExistException"/>
+            </fault>
+            <fault name="PhonePrefixDoesNotMatchException">
+            	<soap:fault use="literal" name="PhonePrefixDoesNotMatchException"/>
+            </fault>
+            <fault name="PhoneAlreadyExistsException">
+            	<soap:fault use="literal" name="PhoneAlreadyExistsException"/>
+            </fault>
+            <fault name="PhoneNumberIncorrectException">
+            	<soap:fault use="literal" name="PhoneNumberIncorrectException"/>
+            </fault>            
+        </operation>
+        <operation name="cancelRegisterPhone">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>         
+        </operation>
+    </binding>
+
+    <service name="AnacomService">
+        <port name="AnacomPort" binding="tns:AnacomBinding">
+            <soap:address location="http://localhost:8080/base-server/AnacomServiceImpl" />
+        </port>
+    </service>
+    
+</definitions>
